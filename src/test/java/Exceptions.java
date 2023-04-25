@@ -1,6 +1,7 @@
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.AfterTest;
@@ -12,10 +13,10 @@ public class Exceptions {
 
     @BeforeTest
     public void beforeTests() {
-//      Open the Chrome browser
         WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("headless");
+        driver = new ChromeDriver(options);
     }
 
     @Test
@@ -40,8 +41,8 @@ public class Exceptions {
         }
 
         try {
-            JavascriptExecutor js = (JavascriptExecutor) driver;
-            js.executeScript("arguments[0].parentNode.removeChild(arguments[0])", button);
+            driver.navigate().refresh();
+            button.click();
         } catch (StaleElementReferenceException e) {
             System.out.println("StaleElementReferenceException");
         }
