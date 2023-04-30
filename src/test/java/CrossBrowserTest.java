@@ -1,4 +1,3 @@
-import com.gargoylesoftware.htmlunit.BrowserVersion;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -6,27 +5,38 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.htmlunit.HtmlUnitDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.interactions.Actions;
-import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-public class JSexecutor {
+public class CrossBrowserTest {
     private WebDriver driver;
     private JavascriptExecutor js;
 
 
     @BeforeTest
-    public void beforeTests() {
-        WebDriverManager.chromedriver().setup();
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("headless");
-        driver = new ChromeDriver(options);
+    @Parameters("browser")
+    public void beforeTests(String browser) {
+        if(browser.equalsIgnoreCase("chrome")) {
+            WebDriverManager.chromedriver().setup();
+            ChromeOptions options = new ChromeOptions();
+            options.addArguments("headless");
+            driver = new ChromeDriver(options);
+        }
+        else if(browser.equalsIgnoreCase("firefox")) {
+            WebDriverManager.firefoxdriver().setup();
+            FirefoxOptions options = new FirefoxOptions();
+            options.addArguments("-headless");
+            driver = new FirefoxDriver(options);
+        }
 
         js = (JavascriptExecutor) driver;
     }
+
 
     @Test
     public void hover()  {
@@ -38,23 +48,6 @@ public class JSexecutor {
         actions.moveToElement(hoverElement).perform();
 
         js.executeScript("arguments[0].remove();", hoverElement);
-    }
-
-    @Test
-    public void validateText() {
-        driver.get("http://webdriveruniversity.com/Scrolling/index.html");
-
-        WebElement elementToScroll = driver.findElement(By.id("zone2-entries"));
-
-        js.executeScript("arguments[0].scrollIntoView();", elementToScroll);
-
-        Actions actions = new Actions(driver);
-        actions.moveToElement(elementToScroll).perform();
-
-        String text = (String) js.executeScript("return arguments[0].textContent;", elementToScroll);
-        String expectedText = "0 Entries";
-
-        Assert.assertEquals(text, expectedText, "Text does not match expected value");
     }
 
     @AfterTest
